@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --cream: #FBF7F0;
+  --charcoal: #2B2A28;
+  --teal: #1F6E5C;
+  --font-fraunces: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-nunito: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+* { -webkit-tap-highlight-color: transparent; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 88px; }
+
+body {
+  background-color: var(--cream);
+  color: var(--charcoal);
+  font-family: var(--font-nunito), system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+.section-kicker {
+  color: var(--teal);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+h1, h2, h3, h4 { font-family: var(--font-fraunces), Georgia, serif; }
+
+/* Focus visibility for accessibility */
+:focus-visible {
+  outline: 3px solid var(--teal);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Subtle repeating paw-print texture used as decorative background */
+.paw-bg {
+  background-image: url("data:image/svg+xml,%3Csvg width='220' height='220' viewBox='0 0 220 220' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%231F6E5C' fill-opacity='.055' transform='rotate(-18 110 110)'%3E%3Cellipse cx='91' cy='81' rx='9' ry='13'/%3E%3Cellipse cx='112' cy='70' rx='9' ry='13'/%3E%3Cellipse cx='133' cy='81' rx='9' ry='13'/%3E%3Cellipse cx='78' cy='102' rx='8' ry='11' transform='rotate(-30 78 102)'/%3E%3Cpath d='M111 96c-21 0-35 19-35 37 0 14 9 24 21 20 8-3 20-3 28 0 12 4 21-6 21-20 0-18-14-37-35-37Z'/%3E%3C/g%3E%3Cg fill='%23F2A93B' fill-opacity='.045' transform='translate(142 148) rotate(18)'%3E%3Cellipse cx='-11' cy='-15' rx='5' ry='7'/%3E%3Cellipse cx='0' cy='-20' rx='5' ry='7'/%3E%3Cellipse cx='11' cy='-15' rx='5' ry='7'/%3E%3Cellipse cx='-18' cy='-4' rx='4' ry='6' transform='rotate(-30 -18 -4)'/%3E%3Cpath d='M0-7C-11-7-18 3-18 12c0 7 5 12 11 10 4-2 10-2 14 0 6 2 11-3 11-10 0-9-7-19-18-19Z'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 220px 220px;
+  background-position: center;
+}
+
+/* ---- Reveal on scroll ---- */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+  will-change: opacity, transform;
+}
+.reveal.in-view { opacity: 1; transform: translateY(0); }
+
+/* ---- Hero entrance ---- */
+@keyframes floatUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.hero-in { animation: floatUp 0.9s cubic-bezier(0.16,1,0.3,1) both; }
+
+@keyframes gentleFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.floaty { animation: gentleFloat 5s ease-in-out infinite; }
+
+@keyframes pulseRing {
+  0% { box-shadow: 0 0 0 0 rgba(37,211,102,0.5); }
+  70% { box-shadow: 0 0 0 16px rgba(37,211,102,0); }
+  100% { box-shadow: 0 0 0 0 rgba(37,211,102,0); }
+}
+.wa-pulse { animation: pulseRing 2.4s infinite; }
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

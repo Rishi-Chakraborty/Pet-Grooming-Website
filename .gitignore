@@ -6,3 +6,4 @@ out
 data/bookings.xlsx
 *.log
 .DS_Store
+Microsoft/Windows/PowerShell/ModuleAnalysisCache
