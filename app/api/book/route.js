@@ -1,17 +1,15 @@
 import { NextResponse } from 'next/server';
-import { appendBooking } from '@/lib/excel';
 import { buildInvite } from '@/lib/calendar';
 import { sendBookingEmail } from '@/lib/mailer';
 
-// Run on the Node.js runtime (needs fs + nodemailer).
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-function bad(msg, code = 400) {
-  return NextResponse.json({ error: msg }, { status: code });
+function bad(error, status = 400) {
+  return NextResponse.json({ error }, { status });
 }
 
-const clean = (s) => String(s ?? '').trim().slice(0, 500);
+const clean = (value) => String(value ?? '').trim().slice(0, 500);
 
 export async function POST(req) {
   let body;
@@ -33,7 +31,6 @@ export async function POST(req) {
     notes: clean(body.notes),
   };
 
-  // Server-side validation (never trust the client alone)
   if (!booking.parentName) return bad('Name is required.');
   if (!/^[+\d][\d\s-]{7,}$/.test(booking.phone)) return bad('A valid phone number is required.');
   if (!booking.petName) return bad('Pet name is required.');
@@ -41,35 +38,21 @@ export async function POST(req) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(booking.date)) return bad('A valid date is required.');
   if (!booking.time) return bad('Please choose a time.');
 
-  const results = { logged: false, emailed: false };
-
-  // 1) Log to Excel (best-effort — a logging failure shouldn't lose the lead)
   try {
-    await appendBooking(booking);
-    results.logged = true;
-  } catch (err) {
-    console.error('Excel logging failed:', err);
-  }
+    const invite = buildInvite(booking);
+    const mail = await sendBookingEmail(booking, invite);
 
-  // 2) Build calendar invite + email the business
-  try {
-    const ics = buildInvite(booking);
-    const mail = await sendBookingEmail(booking, ics);
-    results.emailed = mail.sent;
-    if (!mail.sent) console.warn('Email not sent:', mail.reason);
-  } catch (err) {
-    console.error('Email/invite failed:', err);
-  }
-
-  // As long as we captured the request somewhere, treat as success for the user.
-  if (!results.logged && !results.emailed) {
-    return bad('We could not process your request right now. Please call us instead.', 500);
+    if (!mail.sent) {
+      console.warn('Booking email was not sent:', mail.reason);
+      return bad('Online booking is temporarily unavailable. Please call us instead.', 503);
+    }
+  } catch (error) {
+    console.error('Booking email failed:', error);
+    return bad('We could not send your request right now. Please call us instead.', 500);
   }
 
   return NextResponse.json({
     ok: true,
-    message:
-      'Your appointment request has been received. Our team will contact you shortly to confirm availability.',
-    detail: results,
+    message: 'Your appointment request has been received. Our team will contact you shortly to confirm availability.',
   });
 }
